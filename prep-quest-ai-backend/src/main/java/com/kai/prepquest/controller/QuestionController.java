@@ -1,6 +1,10 @@
 package com.kai.prepquest.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kai.prepquest.annotation.AuthCheck;
 import com.kai.prepquest.common.BaseResponse;
@@ -15,8 +19,10 @@ import com.kai.prepquest.model.dto.question.QuestionEditRequest;
 import com.kai.prepquest.model.dto.question.QuestionQueryRequest;
 import com.kai.prepquest.model.dto.question.QuestionUpdateRequest;
 import com.kai.prepquest.model.entity.Question;
+import com.kai.prepquest.model.entity.QuestionBankQuestion;
 import com.kai.prepquest.model.entity.User;
 import com.kai.prepquest.model.vo.QuestionVO;
+import com.kai.prepquest.service.QuestionBankQuestionService;
 import com.kai.prepquest.service.QuestionService;
 import com.kai.prepquest.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +36,7 @@ import java.util.List;
 /**
  * 题目接口
  *
-
+ * 
  */
 @RestController
 @RequestMapping("/question")
@@ -54,7 +60,8 @@ public class QuestionController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest,
+            HttpServletRequest request) {
         ThrowUtils.throwIf(questionAddRequest == null, ErrorCode.PARAMS_ERROR);
         // todo 在此处将实体类和 DTO 进行转换
         Question question = new Question();
@@ -152,11 +159,8 @@ public class QuestionController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
-        long current = questionQueryRequest.getCurrent();
-        long size = questionQueryRequest.getPageSize();
-        // 查询数据库
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
+        ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
         return ResultUtils.success(questionPage);
     }
 
@@ -169,7 +173,7 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                               HttpServletRequest request) {
+            HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
@@ -190,7 +194,7 @@ public class QuestionController {
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                                 HttpServletRequest request) {
+            HttpServletRequest request) {
         ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 补充查询条件，只查询当前登录用户的数据
         User loginUser = userService.getLoginUser(request);
@@ -205,42 +209,44 @@ public class QuestionController {
         // 获取封装类
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
     }
-//    The user shouldn't have this, comment foe now
-//    /**
-//     * 编辑题目（给用户使用）
-//     *
-//     * @param questionEditRequest
-//     * @param request
-//     * @return
-//     */
-//    @PostMapping("/edit")
-//    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
-//        if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-//        }
-//        // todo 在此处将实体类和 DTO 进行转换
-//        Question question = new Question();
-//        BeanUtils.copyProperties(questionEditRequest, question);
-//        List<String> tags = questionEditRequest.getTags();
-//        if (tags != null) {
-//            question.setTags(JSONUtil.toJsonStr(tags));
-//        }
-//        // 数据校验
-//        questionService.validQuestion(question, false);
-//        User loginUser = userService.getLoginUser(request);
-//        // 判断是否存在
-//        long id = questionEditRequest.getId();
-//        Question oldQuestion = questionService.getById(id);
-//        ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
-//        // 仅本人或管理员可编辑
-//        if (!oldQuestion.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-//            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-//        }
-//        // 操作数据库
-//        boolean result = questionService.updateById(question);
-//        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-//        return ResultUtils.success(true);
-//    }
+    // The user shouldn't have this, comment foe now
+    // /**
+    // * 编辑题目（给用户使用）
+    // *
+    // * @param questionEditRequest
+    // * @param request
+    // * @return
+    // */
+    // @PostMapping("/edit")
+    // public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest
+    // questionEditRequest, HttpServletRequest request) {
+    // if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
+    // throw new BusinessException(ErrorCode.PARAMS_ERROR);
+    // }
+    // // todo 在此处将实体类和 DTO 进行转换
+    // Question question = new Question();
+    // BeanUtils.copyProperties(questionEditRequest, question);
+    // List<String> tags = questionEditRequest.getTags();
+    // if (tags != null) {
+    // question.setTags(JSONUtil.toJsonStr(tags));
+    // }
+    // // 数据校验
+    // questionService.validQuestion(question, false);
+    // User loginUser = userService.getLoginUser(request);
+    // // 判断是否存在
+    // long id = questionEditRequest.getId();
+    // Question oldQuestion = questionService.getById(id);
+    // ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
+    // // 仅本人或管理员可编辑
+    // if (!oldQuestion.getUserId().equals(loginUser.getId()) &&
+    // !userService.isAdmin(loginUser)) {
+    // throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+    // }
+    // // 操作数据库
+    // boolean result = questionService.updateById(question);
+    // ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+    // return ResultUtils.success(true);
+    // }
 
     // endregion
 }
