@@ -9,11 +9,15 @@ import com.kai.prepquest.constant.CommonConstant;
 import com.kai.prepquest.exception.ThrowUtils;
 import com.kai.prepquest.mapper.QuestionBankQuestionMapper;
 import com.kai.prepquest.model.dto.questionBankQuestion.QuestionBankQuestionQueryRequest;
+import com.kai.prepquest.model.entity.Question;
+import com.kai.prepquest.model.entity.QuestionBank;
 import com.kai.prepquest.model.entity.QuestionBankQuestion;
 import com.kai.prepquest.model.entity.User;
 import com.kai.prepquest.model.vo.QuestionBankQuestionVO;
 import com.kai.prepquest.model.vo.UserVO;
 import com.kai.prepquest.service.QuestionBankQuestionService;
+import com.kai.prepquest.service.QuestionBankService;
+import com.kai.prepquest.service.QuestionService;
 import com.kai.prepquest.service.UserService;
 import com.kai.prepquest.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,12 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Resource
     private UserService userService;
 
+    @Resource
+    private QuestionService questionService;
+
+    @Resource
+    private QuestionBankService questionBankService;
+
     /**
      * 校验数据
      *
@@ -49,6 +59,17 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Override
     public void validQuestionBankQuestion(QuestionBankQuestion questionBankQuestion, boolean add) {
         ThrowUtils.throwIf(questionBankQuestion == null, ErrorCode.PARAMS_ERROR);
+        // 题目和题库必须存在
+        Long questionId = questionBankQuestion.getQuestionId();
+        if (questionId != null) {
+            Question question = questionService.getById(questionId);
+            ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+        }
+        Long questionBankId = questionBankQuestion.getQuestionBankId();
+        if (questionBankId != null) {
+            QuestionBank questionBank = questionBankService.getById(questionBankId);
+            ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR, "题库不存在");
+        }
         // 不需要校验
         // // todo 从对象中取值
         // String title = questionBankQuestion.getTitle();
