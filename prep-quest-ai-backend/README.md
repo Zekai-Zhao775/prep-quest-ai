@@ -1,178 +1,416 @@
-# SpringBoot 项目初始模板
+# Prep Quest AI - Backend
 
-基于 Java SpringBoot 的项目初始模板，整合了常用框架和主流业务的示例代码。
+A comprehensive Spring Boot backend API for an AI-powered interview and exam preparation platform. This system manages question banks, questions, user authentication, and community features with built-in integrations for search, storage, and social platforms.
 
-只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
+## 📋 Table of Contents
 
-[toc]
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [Configuration](#-configuration)
+- [API Documentation](#-api-documentation)
+- [Database Schema](#-database-schema)
+- [Project Structure](#-project-structure)
 
-## 模板特点
+## ✨ Features
 
-### 主流框架 & 特性
+### Core Functionality
+- **Question Bank Management**: Create, organize, and manage collections of interview/exam questions
+- **Question Management**: CRUD operations for questions with tags, answers, and rich content
+- **Question-Bank Association**: Flexible many-to-many relationships between questions and banks
+- **User System**: Complete user authentication, authorization, and profile management
+- **Community Features**: Posts with likes and favorites for user engagement
+- **File Management**: Upload and manage files with Tencent COS integration
 
-- Spring Boot 2.7.x（贼新）
-- Spring MVC
-- MyBatis + MyBatis Plus 数据访问（开启分页）
-- Spring Boot 调试工具和项目处理器
-- Spring AOP 切面编程
-- Spring Scheduler 定时任务
-- Spring 事务注解
+### Technical Features
+- **Role-Based Access Control**: User/Admin/Banned roles with custom annotation-based auth
+- **Distributed Session**: Redis-based session management (optional)
+- **Full-Text Search**: Elasticsearch integration for advanced search capabilities (optional)
+- **WeChat Integration**: Support for WeChat MP and Open Platform login
+- **API Documentation**: Interactive Swagger/Knife4j documentation
+- **Scheduled Jobs**: Background tasks for data synchronization
+- **Excel Import/Export**: Easy Excel integration for bulk operations
+- **Global Error Handling**: Unified exception handling and response formatting
+- **Request Logging**: AOP-based logging for all requests
+- **CORS Support**: Pre-configured cross-origin resource sharing
 
-### 数据存储
+## 🛠 Tech Stack
 
-- MySQL 数据库
-- Redis 内存数据库
-- Elasticsearch 搜索引擎
-- 腾讯云 COS 对象存储
+### Framework & Core
+- **Spring Boot** 2.7.2 - Core framework
+- **Spring MVC** - Web layer
+- **Spring AOP** - Cross-cutting concerns
+- **Spring Scheduler** - Scheduled tasks
+- **MyBatis** + **MyBatis Plus** 3.5.2 - ORM with pagination
 
-### 工具类
+### Data Storage
+- **MySQL** - Primary database
+- **Redis** - Distributed session and caching (optional)
+- **Elasticsearch** - Full-text search engine (optional)
+- **Tencent COS** - Cloud object storage
 
-- Easy Excel 表格处理
-- Hutool 工具库
-- Apache Commons Lang3 工具类
-- Lombok 注解
+### Third-Party Integrations
+- **WeChat SDK** 4.4.0 - WeChat MP and Open Platform
+- **Knife4j** 4.4.0 - Enhanced Swagger API documentation
 
-### 业务特性
+### Utilities
+- **Hutool** 5.8.8 - Java utility library
+- **Apache Commons Lang3** - Common utilities
+- **Easy Excel** 3.1.1 - Excel processing
+- **Lombok** - Boilerplate code reduction
 
-- 业务代码生成器（支持自动生成 Service、Controller、数据模型代码）
-- Spring Session Redis 分布式登录
-- 全局请求响应拦截器（记录日志）
-- 全局异常处理器
-- 自定义错误码
-- 封装通用响应类
-- Swagger + Knife4j 接口文档
-- 自定义权限注解 + 全局校验
-- 全局跨域处理
-- 长整数丢失精度解决
-- 多环境配置
+## 🏗 Architecture
 
+```
+┌─────────────────────────────────────────────────┐
+│              Controller Layer                    │
+│  (REST APIs, Request Validation, Auth Check)    │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│               Service Layer                      │
+│    (Business Logic, Transaction Management)     │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│            Mapper/DAO Layer                      │
+│    (MyBatis Plus, Database Operations)          │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│              Data Sources                        │
+│    (MySQL, Redis, Elasticsearch, COS)           │
+└─────────────────────────────────────────────────┘
+```
 
-## 业务功能
+**Cross-Cutting Concerns (AOP)**:
+- Authentication & Authorization (`@AuthCheck`)
+- Request/Response Logging
+- Exception Handling
 
-- 提供示例 SQL（用户、帖子、帖子点赞、帖子收藏表）
-- 用户登录、注册、注销、更新、检索、权限管理
-- 帖子创建、删除、编辑、更新、数据库检索、ES 灵活检索
-- 帖子点赞、取消点赞
-- 帖子收藏、取消收藏、检索已收藏帖子
-- 帖子全量同步 ES、增量同步 ES 定时任务
-- 支持微信开放平台登录
-- 支持微信公众号订阅、收发消息、设置菜单
-- 支持分业务的文件上传
+## 🚀 Getting Started
 
-### 单元测试
+### Prerequisites
+- **JDK** 1.8 or higher
+- **Maven** 3.6+
+- **MySQL** 5.7+ or 8.0+
+- **Redis** (optional, for distributed session)
+- **Elasticsearch** 7.x+ (optional, for search)
 
-- JUnit5 单元测试
-- 示例单元测试类
+### Installation
 
-### 架构设计
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd prep-quest-ai-backend
+   ```
 
-- 合理分层
+2. **Configure database**
+   - Create database:
+     ```bash
+     mysql -u root -p < sql/create_table.sql
+     ```
+   - Update `src/main/resources/application.yml` with your MySQL credentials
 
+3. **Build the project**
+   ```bash
+   ./mvnw clean install
+   ```
+   Or on Windows:
+   ```cmd
+   mvnw.cmd clean install
+   ```
 
-## 快速上手
+4. **Run the application**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+   The application will start on `http://localhost:8101/api`
 
-> 所有需要修改的地方都标记了 `todo`，便于大家找到修改的位置~
+## ⚙ Configuration
 
-### MySQL 数据库
+### Basic Configuration (Required)
 
-1）修改 `application.yml` 的数据库配置为你自己的：
-
-```yml
+#### 1. MySQL Database
+Edit `src/main/resources/application.yml`:
+```yaml
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/prepquestai_db
     username: root
-    password: 123456
+    password: your_password
 ```
 
-2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
+### Optional Features
 
-3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
+#### 2. Enable Redis (Distributed Session)
 
-![](doc/swagger.png)
-
-### Redis 分布式登录
-
-1）修改 `application.yml` 的 Redis 配置为你自己的：
-
-```yml
+**Step 1**: Update `application.yml`:
+```yaml
 spring:
   redis:
     database: 1
     host: localhost
     port: 6379
     timeout: 5000
-    password: 123456
-```
-
-2）修改 `application.yml` 中的 session 存储方式：
-
-```yml
-spring:
+    password: your_redis_password
   session:
-    store-type: redis
+    store-type: redis  # Uncomment this line
 ```
 
-3）移除 `MainApplication` 类开头 `@SpringBootApplication` 注解内的 exclude 参数：
-
-修改前：
-
+**Step 2**: Remove Redis exclusion in `MainApplication.java`:
 ```java
+// Change from:
 @SpringBootApplication(exclude = {RedisAutoConfiguration.class})
-```
 
-修改后：
-
-
-```java
+// To:
 @SpringBootApplication
 ```
 
-### Elasticsearch 搜索引擎
+#### 3. Enable Elasticsearch (Search Engine)
 
-1）修改 `application.yml` 的 Elasticsearch 配置为你自己的：
-
-```yml
+**Step 1**: Update `application.yml`:
+```yaml
 spring:
   elasticsearch:
     uris: http://localhost:9200
     username: root
-    password: 123456
+    password: your_es_password
 ```
 
-2）复制 `sql/post_es_mapping.json` 文件中的内容，通过调用 Elasticsearch 的接口或者 Kibana Dev Tools 来创建索引（相当于数据库建表）
-
-```
+**Step 2**: Create index using Kibana or REST API:
+```bash
 PUT post_v1
 {
- 参数见 sql/post_es_mapping.json 文件
+  # See sql/post_es_mapping.json for full mapping
 }
 ```
 
-这步不会操作的话需要补充下 Elasticsearch 的知识，或者自行百度一下~
+**Step 3**: Enable sync jobs in `src/main/java/com/kai/prepquest/job/`:
+- Uncomment `@Component` in `FullSyncPostToEs.java`
+- Uncomment `@Component` in `IncSyncPostToEs.java`
 
-3）开启同步任务，将数据库的帖子同步到 Elasticsearch
+#### 4. WeChat Integration
 
-找到 job 目录下的 `FullSyncPostToEs` 和 `IncSyncPostToEs` 文件，取消掉 `@Component` 注解的注释，再次执行程序即可触发同步：
+Update `application.yml`:
+```yaml
+wx:
+  mp:  # WeChat MP
+    token: your_token
+    aesKey: your_aes_key
+    appId: your_app_id
+    secret: your_secret
+  open:  # WeChat Open Platform
+    appId: your_open_app_id
+    appSecret: your_open_app_secret
+```
+
+#### 5. Tencent COS (Cloud Storage)
+
+Update `application.yml`:
+```yaml
+cos:
+  client:
+    accessKey: your_access_key
+    secretKey: your_secret_key
+    region: your_region
+    bucket: your_bucket_name
+```
+
+## 📚 API Documentation
+
+Once the application is running, access the interactive API documentation:
+
+**URL**: `http://localhost:8101/api/doc.html`
+
+Features:
+- Browse all available endpoints
+- Test APIs directly from the browser
+- View request/response schemas
+- Export API documentation
+
+![Swagger Documentation](doc/swagger.png)
+
+## 💾 Database Schema
+
+### Core Tables
+
+**user** - User accounts and profiles
+- Authentication (account, password)
+- Profile info (name, avatar, bio)
+- WeChat integration (unionId, mpOpenId)
+- Role-based access (user/admin/ban)
+
+**question_bank** - Question collections
+- Title and description
+- Picture/logo
+- Creator tracking
+
+**question** - Individual questions
+- Title and content
+- Tags (JSON array)
+- Recommended answer
+- Creator tracking
+
+**question_bank_question** - Many-to-many relationship
+- Links questions to banks
+- Unique constraint per bank-question pair
+
+**post** - Community posts (from template)
+- Support for likes and favorites
+- Elasticsearch sync for search
+
+## 📁 Project Structure
+
+```
+prep-quest-ai-backend/
+├── src/main/java/com/kai/prepquest/
+│   ├── annotation/          # Custom annotations (@AuthCheck)
+│   ├── aop/                 # Aspect-oriented programming
+│   │   ├── AuthInterceptor.java      # Authentication interceptor
+│   │   └── LogInterceptor.java       # Request logging
+│   ├── common/              # Common response classes
+│   │   ├── BaseResponse.java
+│   │   ├── ErrorCode.java
+│   │   └── ResultUtils.java
+│   ├── config/              # Spring configuration
+│   │   ├── CorsConfig.java
+│   │   ├── CosClientConfig.java
+│   │   ├── JsonConfig.java
+│   │   ├── MyBatisPlusConfig.java
+│   │   └── WxOpenConfig.java
+│   ├── constant/            # Application constants
+│   ├── controller/          # REST controllers
+│   │   ├── QuestionController.java
+│   │   ├── QuestionBankController.java
+│   │   ├── QuestionBankQuestionController.java
+│   │   ├── PostController.java
+│   │   ├── UserController.java
+│   │   └── ...
+│   ├── exception/           # Exception handling
+│   │   ├── BusinessException.java
+│   │   ├── GlobalExceptionHandler.java
+│   │   └── ThrowUtils.java
+│   ├── esdao/               # Elasticsearch repositories
+│   ├── job/                 # Scheduled tasks
+│   │   ├── cycle/           # Recurring jobs
+│   │   └── once/            # One-time jobs
+│   ├── manager/             # External service managers
+│   │   └── CosManager.java
+│   ├── mapper/              # MyBatis mappers (DAO)
+│   ├── model/               # Data models
+│   │   ├── dto/             # Data Transfer Objects
+│   │   ├── entity/          # Database entities
+│   │   ├── enums/           # Enumerations
+│   │   └── vo/              # View Objects
+│   ├── service/             # Business logic layer
+│   │   └── impl/            # Service implementations
+│   ├── utils/               # Utility classes
+│   ├── wxmp/                # WeChat Mini Program
+│   └── MainApplication.java # Application entry point
+│
+├── src/main/resources/
+│   ├── application.yml      # Main configuration
+│   ├── application-prod.yml # Production config
+│   ├── application-test.yml # Test config
+│   └── mapper/              # MyBatis XML mappers
+│
+├── sql/
+│   ├── create_table.sql     # Database schema
+│   └── post_es_mapping.json # Elasticsearch mapping
+│
+├── pom.xml                  # Maven dependencies
+└── Dockerfile               # Docker configuration
+```
+
+## 🔐 Authentication
+
+### User Roles
+- **user**: Regular user with basic permissions
+- **admin**: Administrator with full access
+- **ban**: Banned user with no access
+
+### Using Auth Check
+
+Protect endpoints with the `@AuthCheck` annotation:
 
 ```java
-// todo 取消注释开启任务
-//@Component
+@PostMapping("/admin/delete")
+@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest request) {
+    // Only admins can access this endpoint
+}
 ```
 
-### 业务代码生成器
+## 🧪 Testing
 
-支持自动生成 Service、Controller、数据模型代码，配合 MyBatisX 插件，可以快速开发增删改查等实用基础功能。
-
-找到 `generate.CodeGenerator` 类，修改生成参数和生成路径，并且支持注释掉不需要的生成逻辑，然后运行即可。
-
-```
-// 指定生成参数
-String packageName = "com.kai.prepquest";
-String dataName = "用户评论";
-String dataKey = "userComment";
-String upperDataKey = "UserComment";
+Run unit tests:
+```bash
+./mvnw test
 ```
 
-生成代码后，可以移动到实际项目中，并且按照 `// todo` 注释的提示来针对自己的业务需求进行修改。
+Test classes are located in `src/test/java/com/kai/prepquest/`:
+- `MainApplicationTests.java` - Application context tests
+- `service/` - Service layer tests
+- `mapper/` - Data access tests
+- `utils/` - Utility tests
+
+## 🐳 Docker Support
+
+Build Docker image:
+```bash
+docker build -t prep-quest-ai-backend .
+```
+
+Run container:
+```bash
+docker run -p 8101:8101 prep-quest-ai-backend
+```
+
+## 📝 Environment Profiles
+
+The application supports multiple environments:
+
+- **dev** (default): Development environment
+- **test**: Testing environment
+- **prod**: Production environment
+
+Switch profiles by setting:
+```yaml
+spring:
+  profiles:
+    active: prod
+```
+
+Or via command line:
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+```
+
+## 🤝 Contributing
+
+1. All modifiable sections are marked with `// todo` comments
+2. Follow the existing code structure and naming conventions
+3. Update API documentation after changes
+4. Write unit tests for new features
+
+## 📄 License
+
+This project is based on a Spring Boot template and customized for Prep Quest AI.
+
+## 🔗 Related Projects
+
+- Frontend Repository: [Add link here]
+- AI Service: [Add link here]
+
+---
+
+**Note**: This is a production-ready backend template. Remember to:
+- ✅ Change all default passwords and secrets
+- ✅ Configure proper CORS origins for production
+- ✅ Enable HTTPS in production
+- ✅ Set up proper logging and monitoring
+- ✅ Configure database backups
+- ✅ Review and update security settings
