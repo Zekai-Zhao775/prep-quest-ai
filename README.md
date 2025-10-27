@@ -4,7 +4,7 @@ AI-powered interview practice platform built with Next.js + Spring Boot + Redis 
 
 ## Tech Stack
 
-**Frontend:** Next.js, React, TypeScript  
+**Frontend:** Next.js, React, Redux, TypeScript  
 **Backend:** Spring Boot, MyBatis Plus, MySQL, Redis, Elasticsearch
 
 ## Project Structure
