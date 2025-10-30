@@ -5,7 +5,7 @@ AI-powered interview practice platform built with OpenAI Agent SDK, OpenAI Realt
 ## Tech Stack
 
 **Frontend:** Next.js, React, Redux, TypeScript  
-**Backend:** Spring Boot, MyBatis Plus, MySQL, Redis, Elasticsearch
+**Backend:** Spring Boot, MyBatis Plus, MySQL, Redis, Elasticsearch  
 **AI:** OpenAI Agent SDK, OpenAI Realtime API
 
 ## Project Structure
