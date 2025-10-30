@@ -1,11 +1,12 @@
 # Prep Quest AI
 
-AI-powered interview practice platform built with Next.js + Spring Boot + Redis + MySQL + Elasticsearch
+AI-powered interview practice platform built with OpenAI Agent SDK, OpenAI Realtime API, Next.js + Spring Boot + Redis + MySQL + Elasticsearch
 
 ## Tech Stack
 
 **Frontend:** Next.js, React, Redux, TypeScript  
 **Backend:** Spring Boot, MyBatis Plus, MySQL, Redis, Elasticsearch
+**AI:** OpenAI Agent SDK, OpenAI Realtime API
 
 ## Project Structure
 ```text
